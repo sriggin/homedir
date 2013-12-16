@@ -1,0 +1,6 @@
+*
+!.gitignore
+!.emacs
+!.zshrc
+!.emacs.d/
+
