@@ -18,15 +18,12 @@
     (package-install p))
   (require p))
 
-;; Now I'm having too much fun
-(defun require-packages (ps)
-  (mapc 'require-package ps))
-
 ;; Some important packages
-(require-packages '(js2-mode
-                    auto-complete
-                    yasnippet
-                    markdown-mode))
+(dolist (pkg '(js2-mode
+               auto-complete
+               yasnippet
+               js-comint))
+  (require-package pkg))
 
 ;;;; Global Config
 
@@ -72,7 +69,7 @@ See URL `https://github.com/FND/jslint-reporter'."
   :error-patterns 
   ((error line-start (1+ nonl) "@" line "[" column "] - " (message) line-end))
   :modes (js2-mode))
-(add-hook 'j2-mode-hook (lambda () 
+(add-hook 'js-mode-hook (lambda () 
                           (flycheck-select-checker 'javascript-jslint-reporter)
                           (flycheck-mode)
                           (dolist (binding js2-keymap)
@@ -81,8 +78,15 @@ See URL `https://github.com/FND/jslint-reporter'."
                    ("C-M-x" . js-send-last-sexp-and-go)
                    ("C-cb" . js-send-buffer)
                    ("C-cC-b" . js-send-buffer-and-go)
-                   ("C-cl" . js-load-file-and-go)))
+                   ("C-cl" . js-load-file-and-go)
+                   ("C-cf" . jstidy)))
 
+(defun jstidy ()
+  "Run js-beautify on the current region or buffer."
+  (interactive)
+  (save-excursion
+    (unless mark-active (mark-defun))
+    (shell-command-on-region (point) (mark) "js-beautify -f --good-stuff -" nil t)))
 
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
