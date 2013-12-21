@@ -92,6 +92,7 @@ See URL `https://github.com/FND/jslint-reporter'."
 
 ;;(require 'ecb)
 ;;(setq stack-trace-on-error t)
+(require 'js-beautify)
 
 ;; Enable useful things
 (electric-indent-mode t)
