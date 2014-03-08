@@ -22,7 +22,8 @@
 (dolist (pkg '(js2-mode
                auto-complete
                yasnippet
-               js-comint))
+               js-comint
+               haskell-mode))
   (require-package pkg))
 
 ;;;; Global Config
@@ -92,7 +93,6 @@ See URL `https://github.com/FND/jslint-reporter'."
 
 ;;(require 'ecb)
 ;;(setq stack-trace-on-error t)
-(require 'js-beautify)
 
 ;; Enable useful things
 (electric-indent-mode t)
@@ -108,13 +108,18 @@ See URL `https://github.com/FND/jslint-reporter'."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes (quote (deeper-blue))))
+ '(custom-enabled-themes (quote (deeper-blue)))
+ '(haskell-mode-hook (quote (turn-on-haskell-decl-scan turn-on-haskell-doc turn-on-haskell-indentation))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; Time for some haskell
+(autoload 'ghc-init "ghc" nil t)
+(add-hook 'haskell-mode-hook (lambda () (ghc-init) (flymake-mode)))
 
 ;; Backup Configuration
 (setq backup-by-copying t)
@@ -126,3 +131,9 @@ See URL `https://github.com/FND/jslint-reporter'."
 
 ;; Global Key bindings
 (global-set-key (kbd "C-DEL") 'undo)
+
+;; Clojure Config
+;;;; Cider config
+(add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+(setq nrepl-hide-special-buffers t)
+

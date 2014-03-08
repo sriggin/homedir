@@ -40,4 +40,4 @@ export ALTERNATE_EDITOR="emacs"
 alias e='emacsclient -t'
 alias ecfg='e ~/.emacs'
 ### Added by the Heroku Toolbelt
-export PATH="/usr/local/heroku/bin:$PATH"
+export PATH="~/bin:/usr/local/heroku/bin:$PATH"
