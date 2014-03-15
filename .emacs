@@ -23,24 +23,28 @@
                auto-complete
                yasnippet
                js-comint
-               haskell-mode))
+               haskell-mode
+               sublime-themes
+               minimap
+               rainbow-delimiters
+               powerline))
   (require-package pkg))
 
 ;;;; Global Config
 
-(global-linum-mode t) ; This may be overkill
 (setq-default inhibit-startup-screen t)
 (setq-default inhibit-scratch-message nil)
 (show-paren-mode 1)
-(setq ring-bell-function 'ignore) ; Stop that!!
-(defalias 'yes-or-no-p 'y-or-n-p) ; Ain't nobody got time for this
-(setq-default indent-tabs-mode nil) ; Go to the right place and nowhere else.
+(setq ring-bell-function 'ignore) 
+(defalias 'yes-or-no-p 'y-or-n-p) 
+(setq-default indent-tabs-mode nil) 
 (setq-default tab-width 4) ; Anyone else is wrong.
 (setq-default tab-always-indent (quote complete))
 
 ;; Lets configure some auto-complete
 (require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete/dict")
+(add-to-list 'ac-dictionary-directories
+             "~/.emacs.d/elpa/auto-complete/dict")
 
 (ac-config-default)
 
@@ -57,37 +61,39 @@
 
 (global-auto-complete-mode t)
 
+;; let's configure some rainbow delimiter colors
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (rainbow-delimiters-mode)
+            (linum-mode)))
+
+(require 'cl-lib)
+(require 'color)
+(cl-loop
+ for index from 1 to rainbow-delimiters-max-face-count
+ do
+ (let ((face
+        (intern
+         (format "rainbow-delimiters-depth-%d-face" index))))
+   (cl-callf color-saturate-name (face-foreground face) 30)))
+(set-face-attribute 'rainbow-delimiters-unmatched-face nil
+                    :foreground 'unspecified
+                    :inherit 'error
+                    :strike-through t)
+
 (require 'ido)
 (ido-mode t)
 
-(require 'flycheck)
-(flycheck-define-checker 
-    javascript-jslint-reporter
-  "A JavaScript syntax and style checker based on JSLint Reporter
-
-See URL `https://github.com/FND/jslint-reporter'."
-  :command ("~/.emacs/jslint-reporter" source)
-  :error-patterns 
-  ((error line-start (1+ nonl) "@" line "[" column "] - " (message) line-end))
-  :modes (js2-mode))
-(add-hook 'js-mode-hook (lambda () 
-                          (flycheck-select-checker 'javascript-jslint-reporter)
-                          (flycheck-mode)
-                          (dolist (binding js2-keymap)
-                            (local-set-key (kbd (car binding)) (cdr binding)))))
-(setq js2-keymap '(("C-xC-e" . js-send-last-sexp)
-                   ("C-M-x" . js-send-last-sexp-and-go)
-                   ("C-cb" . js-send-buffer)
-                   ("C-cC-b" . js-send-buffer-and-go)
-                   ("C-cl" . js-load-file-and-go)
-                   ("C-cf" . jstidy)))
+(add-hook 'js2-mode-hook (lambda ()
+                           (flymake-jshint-load)
+                           (local-set-key (kbd "C-c f") 'jstidy)))
 
 (defun jstidy ()
   "Run js-beautify on the current region or buffer."
   (interactive)
   (save-excursion
     (unless mark-active (mark-defun))
-    (shell-command-on-region (point) (mark) "js-beautify -f --good-stuff -" nil t)))
+    (shell-command-on-region (point) (mark) "js-beautify --good-stuff -f -" nil t)))
 
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
@@ -108,7 +114,8 @@ See URL `https://github.com/FND/jslint-reporter'."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes (quote (deeper-blue)))
+ '(custom-enabled-themes (quote (spolsky)))
+ '(custom-safe-themes (quote ("e26780280b5248eb9b2d02a237d9941956fc94972443b0f7aeec12b5c15db9f3" default)))
  '(haskell-mode-hook (quote (turn-on-haskell-decl-scan turn-on-haskell-doc turn-on-haskell-indentation))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -123,17 +130,24 @@ See URL `https://github.com/FND/jslint-reporter'."
 
 ;; Backup Configuration
 (setq backup-by-copying t)
-(setq backup-directory-alist '(("." . "~/saves"))
+(setq backup-directory-alist '(("." . "~/.saves"))
       delete-old-versions t
       kept-new-versions 6
       kept-old-versions 2
       version-control t)
 
-;; Global Key bindings
-(global-set-key (kbd "C-DEL") 'undo)
-
 ;; Clojure Config
 ;;;; Cider config
 (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
 (setq nrepl-hide-special-buffers t)
+
+;;; nudity
+(blink-cursor-mode 0)
+(setq initial-scratch-message "")
+(setq inhibit-startup-message t)
+(setq visible-bell t)
+(setq inhibit-startup-echo-area-message "sriggin")
+(scroll-bar-mode 0)
+(tool-bar-mode 0)
+(menu-bar-mode 0)
 
