@@ -1,0 +1,8 @@
+*
+!.gitignore
+!.emacs
+!.zshrc
+!.emacs.d/
+!.init.home.sh
+.ensime*
+.emacs.d/ensime
