@@ -259,7 +259,5 @@
  '(sbt:error ((t (:inherit error)))))
 (put 'downcase-region 'disabled nil)
 
-
-;; Golang stuff
-(add-to-list 'exec-path "~/dev/golang/bin")
-(add-hook 'before-save-hook 'gofmt-before-save)
+;; Load Golang Config
+(load-file "./.emacs.d/golang.el")
