@@ -2,10 +2,8 @@
 
 ;;;; Global Things
 
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("marmalade" . "http://marmalade-repo.org/packages/")
-                         ("melpa" . "http://melpa.org/packages/")
-                         ("melpa-stable" . "http://stable.melpa.org/packages/")))
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
 
 ;; Refreshing!
 (package-initialize)
@@ -41,22 +39,15 @@
 (global-hl-line-mode t)
 (powerline-default-theme)
 
-(defalias 'yes-or-no-p 'y-or-n-p) 
+(defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; Some important packages
-(dolist (pkg '(js2-mode
-               haskell-mode
-               sublime-themes
+(dolist (pkg '(sublime-themes
                rainbow-delimiters
-               scala-mode
                drag-stuff
                powerline
                fill-column-indicator))
   (require pkg))
-
-(use-package ensime
-  :pin melpa-stable
-  :init (setq ensime-startup-snapshot-notification nil))
 
 (use-package projectile
   :demand
@@ -77,7 +68,7 @@
          ;; C-d to open directories
          ;; C-f to revert to find-file
          ido-show-dot-for-dired nil
-         ido-enable-dot-prefix t)6
+         ido-enable-dot-prefix t)
   :config
   (ido-mode 1)
   (ido-everywhere 1)
@@ -146,25 +137,8 @@
 
 (global-set-key (kbd "C-<backspace>") 'contextual-backspace)
 
-(defun ensime-edit-definition-with-fallback ()
-  "Variant of `ensime-edit-definition' with ctags if ENSIME is not available."
-  (interactive)
-  (unless (and (ensime-connection-or-nil)
-               (ensime-edit-definition))
-    (projectile-find-tag)))
-
-(bind-key "M-." 'ensime-edit-definition-with-fallback ensime-mode-map)
 (global-set-key (kbd "M-.") 'projectile-find-tag)
 (global-set-key (kbd "M-,") 'pop-tag-mark)
-
-(defun scala-mode-newline-comments ()
-  "Custom newline appropriate for `scala-mode'."
-  ;; shouldn't this be in a post-insert hook?
-  (interactive)
-  (newline-and-indent)
-  (scala-indent:insert-asterisk-on-multiline-comment))
-
-(bind-key "RET" 'scala-mode-newline-comments scala-mode-map)
 
 ;; let's configure some rainbow delimiter colors
 (add-hook 'prog-mode-hook
@@ -189,40 +163,6 @@
                     :inherit 'error
                     :strike-through t)
 
-(add-hook 'js2-mode-hook (lambda ()
-                           (flymake-jshint-load)
-                           (local-set-key (kbd "C-c f") 'jstidy)))
-
-(add-hook 'hs-minor-mode-hook (lambda ()
-                                (local-set-key (kbd "C-c C-h") 'hs-hide-block)
-                                (local-set-key (kbd "C-c C-s") 'hs-show-block)
-                                (local-set-key (kbd "C-c C-S-h") 'hs-hide-all)
-                                (local-set-key (kbd "C-c C-S-s") 'hs-show-all)))
-
-(defun jstidy ()
-  "Run js-beautify on the current region or buffer."
-  (interactive)
-  (save-excursion
-    (unless mark-active (mark-defun))
-    (shell-command-on-region (point) (mark) "js-beautify --good-stuff -f -" nil t)))
-
-(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
-
-;; Clojure Config
-;;;; Cider config
-(add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
-(setq nrepl-hide-special-buffers t)
-
-(add-hook 'scala-mode-hook
-          (lambda ()
-            (company-mode)
-            (ensime-mode)))
-
-(setq inferior-js-program-command "node --interactive")
-;; Time for some haskell
-(autoload 'ghc-init "ghc" nil t)
-(add-hook 'haskell-mode-hook (lambda () (ghc-init) (flymake-mode)))
-
 (setq-default fill-column 120)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -235,17 +175,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes (quote (spolsky)))
+ '(custom-enabled-themes '(spolsky))
  '(custom-safe-themes
-   (quote
-    ("0c29db826418061b40564e3351194a3d4a125d182c6ee5178c237a7364f0ff12" "e26780280b5248eb9b2d02a237d9941956fc94972443b0f7aeec12b5c15db9f3" default)))
- '(ensime-log-events t t)
+   '("c48551a5fb7b9fc019bf3f61ebf14cf7c9cdca79bcb2a4219195371c02268f11" "0c29db826418061b40564e3351194a3d4a125d182c6ee5178c237a7364f0ff12" "e26780280b5248eb9b2d02a237d9941956fc94972443b0f7aeec12b5c15db9f3" default))
  '(haskell-mode-hook
-   (quote
-    (turn-on-haskell-decl-scan turn-on-haskell-doc turn-on-haskell-indentation)))
+   '(turn-on-haskell-decl-scan turn-on-haskell-doc turn-on-haskell-indentation) t)
  '(js2-basic-offset 2)
+ '(package-selected-packages
+   '(markdown-mode yasnippet flx-ido projectile use-package sublime-themes rainbow-delimiters powerline fill-column-indicator drag-stuff))
  '(projectile-global-mode t)
- '(projectile-tags-backend (quote ggtags))
+ '(projectile-tags-backend 'ggtags)
  '(projectile-use-git-grep t)
  '(sbt:ansi-support t))
 (custom-set-faces
@@ -253,11 +192,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#161A1F" :foreground "#DEDEDE" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :foundry "unknown" :family "Ubuntu Mono"))))
- '(ensime-errline-highlight ((t (:inherit flymake-errline))))
+ '(default ((t (:background nil))))
  '(hl-line ((t (:inherit highlight :background "#151515" :underline nil))))
  '(sbt:error ((t (:inherit error)))))
 (put 'downcase-region 'disabled nil)
-
-;; Load Golang Config
-(load-file "./.emacs.d/golang.el")
